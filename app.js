@@ -1,5 +1,3 @@
-
-
 const fruits = [
     { name: "apple", symbol: "🍎" },
     { name: "banana", symbol: "🍌" },
@@ -19,12 +17,10 @@ function shuffle(array) {
     return array;
 }
 
-const deck = shuffle ([...fruits,...fruits]);
+let deck = shuffle ([...fruits,...fruits]);
 
 function buildBoard(){
-    const board = document.querySelector("#board");
-
-    board.innerHTML = "";
+    board.replaceChildren();
 
     deck.forEach((fruit, index) => {
         const card = document.createElement("button");
@@ -41,10 +37,12 @@ function buildBoard(){
 const flippedCards = [];
 let moves = 0;
 let waiting = false;
+let timerId;
 
 const movesDisplay = document.querySelector("#moves");
 const statusDisplay = document.querySelector("#status");
 const board = document.querySelector("#board");
+const newGameButton = document.querySelector("#new-game");
 
 
 board.addEventListener("click", (event) => {
@@ -52,7 +50,7 @@ board.addEventListener("click", (event) => {
 
     if (waiting) {
     return;
-}
+    }
 
     if (!card.classList.contains("card")) {
         return;
@@ -109,7 +107,7 @@ board.addEventListener("click", (event) => {
         statusDisplay.textContent = "Not a pair. Try again.";
         waiting = true;
 
-        setTimeout(() => {
+        timerId = setTimeout(() => {
             flippedCards.forEach((card) => {
                 card.textContent = "";
                 card.classList.remove("flipped");
@@ -126,5 +124,23 @@ board.addEventListener("click", (event) => {
         }, 1000);
     }
 });
+
+    
+newGameButton.addEventListener("click", () => {
+
+    clearTimeout(timerId);
+    waiting = false;
+    flippedCards.length = 0;
+    moves = 0;
+    movesDisplay.textContent = moves;
+
+    statusDisplay.textContent = "Turn over two cards to find a matching pair.";
+    statusDisplay.classList.remove("you-won");
+
+    deck = shuffle([...fruits, ...fruits]);
+
+    buildBoard();
+});
+
 
 buildBoard();
