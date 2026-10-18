@@ -95,9 +95,16 @@ board.addEventListener("click", (event) => {
         });
 
         statusDisplay.textContent = "That's a pair!";
-
-       
         flippedCards.length = 0;
+
+        const matchedCards = board.querySelectorAll(".matched");
+
+        if (matchedCards.length === 16) {
+            statusDisplay.textContent = `You found all the pairs in ${moves} moves!`;
+
+            statusDisplay.classList.add("you-won");
+        }
+
     } else {
         statusDisplay.textContent = "Not a pair. Try again.";
         waiting = true;
