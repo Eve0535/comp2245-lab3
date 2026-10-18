@@ -39,30 +39,85 @@ function buildBoard(){
 }
 
 const flippedCards = [];
+let moves = 0;
+let waiting = false;
 
+const movesDisplay = document.querySelector("#moves");
+const statusDisplay = document.querySelector("#status");
 const board = document.querySelector("#board");
+
 
 board.addEventListener("click", (event) => {
     const card = event.target;
 
+    if (waiting) {
+    return;
+}
+
     if (!card.classList.contains("card")) {
         return;
     }
-    if (card.classList.contains("flipped")) {
+
+    if (card.classList.contains("flipped") || card.classList.contains("matched")) {
         return;
     }
 
+    if (flippedCards.length === 2) {
+        return;
+    }
+
+   
     const fruit = deck[card.dataset.index];
     card.textContent = fruit.symbol;
     card.classList.add("flipped");
-
     card.setAttribute(
         "aria-label",
         `Card ${Number(card.dataset.index) + 1}, ${fruit.name}`
     );
 
-    flippedCards.push(card);
-});
 
+    flippedCards.push(card);
+   
+    if (flippedCards.length < 2) {
+        return;
+    }
+
+    moves++;
+    movesDisplay.textContent = moves;
+
+    const firstFruit = deck[flippedCards[0].dataset.index];
+    const secondFruit = deck[flippedCards[1].dataset.index];
+
+    if (firstFruit.name === secondFruit.name) {
+        flippedCards.forEach((card) => {
+            card.classList.add("matched");
+            card.disabled = true;
+        });
+
+        statusDisplay.textContent = "That's a pair!";
+
+       
+        flippedCards.length = 0;
+    } else {
+        statusDisplay.textContent = "Not a pair. Try again.";
+        waiting = true;
+
+        setTimeout(() => {
+            flippedCards.forEach((card) => {
+                card.textContent = "";
+                card.classList.remove("flipped");
+
+                card.setAttribute(
+                    "aria-label",
+                    `Card ${Number(card.dataset.index) + 1}, face down`
+                );
+            });
+
+            flippedCards.length = 0;
+            waiting = false;
+            statusDisplay.textContent = "Turn over two cards to find a matching pair.";
+        }, 1000);
+    }
+});
 
 buildBoard();
